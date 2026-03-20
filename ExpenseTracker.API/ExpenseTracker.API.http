@@ -1,6 +1,155 @@
-@ExpenseTracker.API_HostAddress = http://localhost:5027
-
-GET {{ExpenseTracker.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
+### ExpenseTracker API — end-to-end walkthrough
+### Works with the VS Code REST Client extension or JetBrains HTTP Client.
 ###
+### Run the requests top-to-bottom. After Login, copy the token from the
+### response into the @token variable below so every protected request works.
+
+@host = http://localhost:5027
+
+# ── Paste the token from the Login response here ─────────────────────────────
+@token = PASTE_TOKEN_HERE
+
+# Set these after creating the resources below
+@categoryId = PASTE_CATEGORY_ID_HERE
+@expenseId  = PASTE_EXPENSE_ID_HERE
+@budgetId   = PASTE_BUDGET_ID_HERE
+
+
+### ── 1. Register ─────────────────────────────────────────────────────────────
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "jane@example.com",
+  "password": "Password1",
+  "firstName": "Jane",
+  "lastName": "Doe"
+}
+
+### ── 2. Login — copy the "token" from the response into @token above ─────────
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "jane@example.com",
+  "password": "Password1"
+}
+
+### ── 3. Create a category ────────────────────────────────────────────────────
+# Copy the "id" from the 201 Location header into @categoryId above
+POST {{host}}/api/categories
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Groceries",
+  "color": "#4CAF50"
+}
+
+### ── 4. List categories ──────────────────────────────────────────────────────
+GET {{host}}/api/categories
+Authorization: Bearer {{token}}
+
+### ── 5. Create an expense ────────────────────────────────────────────────────
+# Copy the "id" from the 201 Location header into @expenseId above
+POST {{host}}/api/expenses
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": 47.50,
+  "description": "Weekly shop",
+  "date": "2025-03-15T10:00:00Z",
+  "categoryId": "{{categoryId}}"
+}
+
+### ── 6. List expenses (paginated) ───────────────────────────────────────────
+GET {{host}}/api/expenses?page=1&pageSize=20
+Authorization: Bearer {{token}}
+
+### ── 7. Filter expenses by date range ───────────────────────────────────────
+GET {{host}}/api/expenses?from=2025-03-01&to=2025-03-31&categoryId={{categoryId}}
+Authorization: Bearer {{token}}
+
+### ── 8. Get a single expense ────────────────────────────────────────────────
+GET {{host}}/api/expenses/{{expenseId}}
+Authorization: Bearer {{token}}
+
+### ── 9. Update an expense ───────────────────────────────────────────────────
+PUT {{host}}/api/expenses/{{expenseId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": 53.20,
+  "description": "Weekly shop (updated)",
+  "date": "2025-03-15T10:00:00Z",
+  "categoryId": "{{categoryId}}"
+}
+
+### ── 10. Create a budget ─────────────────────────────────────────────────────
+# Copy the "id" into @budgetId above
+POST {{host}}/api/budgets
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "categoryId": "{{categoryId}}",
+  "limitAmount": 200.00,
+  "month": 3,
+  "year": 2025,
+  "alertThresholdPercentage": 80
+}
+
+### ── 11. List budgets ────────────────────────────────────────────────────────
+GET {{host}}/api/budgets
+Authorization: Bearer {{token}}
+
+### ── 12. Monthly summary (cached, 5 min TTL) ────────────────────────────────
+# Shows per-category spending vs budget with alert flags
+GET {{host}}/api/reports/monthly-summary?month=3&year=2025
+Authorization: Bearer {{token}}
+
+### ── 13. Delete the expense (should invalidate the summary cache) ────────────
+DELETE {{host}}/api/expenses/{{expenseId}}
+Authorization: Bearer {{token}}
+
+### ── 14. Monthly summary again — reflects the deletion instantly ─────────────
+GET {{host}}/api/reports/monthly-summary?month=3&year=2025
+Authorization: Bearer {{token}}
+
+### ── 15. Validation error example (400 Problem Details) ─────────────────────
+POST {{host}}/api/expenses
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "amount": -5,
+  "description": "",
+  "date": "2099-01-01T00:00:00Z",
+  "categoryId": "00000000-0000-0000-0000-000000000000"
+}
+
+### ── 16. Not found example (404 Problem Details) ────────────────────────────
+GET {{host}}/api/expenses/00000000-0000-0000-0000-000000000001
+Authorization: Bearer {{token}}
+
+### ── 17. Update a budget ─────────────────────────────────────────────────────
+PUT {{host}}/api/budgets/{{budgetId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "limitAmount": 300.00,
+  "alertThresholdPercentage": 75
+}
+
+### ── 18. Update a category ───────────────────────────────────────────────────
+PUT {{host}}/api/categories/{{categoryId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Food & Groceries",
+  "color": "#8BC34A"
+}
