@@ -43,6 +43,7 @@ app.MapScalarApiReference(options =>
 {
     options.Title = "ExpenseTracker API";
     options.Theme = ScalarTheme.DeepSpace;
+    options.Servers = [new ScalarServer("https://expense-tracker-api-vhmi.onrender.com")];
 });
 
 app.UseMiddleware<ExceptionMiddleware>();
