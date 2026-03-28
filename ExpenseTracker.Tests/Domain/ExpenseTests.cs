@@ -10,7 +10,7 @@ public class ExpenseTests
     private static readonly Guid CategoryId = Guid.NewGuid();
     private static readonly DateTime ValidDate = DateTime.UtcNow.AddDays(-1);
 
-    // ── Construction guards ───────────────────────────────────────────────────
+    //Construction guards 
 
     [Theory]
     [InlineData(0)]
@@ -60,7 +60,7 @@ public class ExpenseTests
         expense.Date.Kind.Should().Be(DateTimeKind.Utc);
     }
 
-    // ── Update ────────────────────────────────────────────────────────────────
+    //Update
 
     [Fact]
     public void Update_ShouldChangeAllFields_WhenValid()

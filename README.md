@@ -1,6 +1,6 @@
 # ExpenseTracker API
 
-A production-minded .NET 10 Web API built to demonstrate mid-level engineering skills: Clean Architecture, CQRS with MediatR, JWT authentication, background services, cache invalidation, and RFC 7807 error handling.
+A.NET 10 Web API demonstrating: Clean Architecture, CQRS with MediatR, JWT authentication, background services, cache invalidation, and RFC 7807 error handling.
 
 ---
 
@@ -29,7 +29,7 @@ ExpenseTracker.sln
 ├── ExpenseTracker.Application     # CQRS handlers, validators, repository interfaces
 ├── ExpenseTracker.Infrastructure  # EF Core, PostgreSQL, Identity, JWT, caching, background service
 ├── ExpenseTracker.API             # Controllers, middleware, Program.cs
-└── ExpenseTracker.Tests           # xUnit unit tests (66 tests, 0 failures)
+└── ExpenseTracker.Tests           # xUnit unit tests 
 ```
 
 Dependency flow is strictly one-way: `API → Infrastructure → Application → Domain`. The Domain layer has no NuGet dependencies at all.

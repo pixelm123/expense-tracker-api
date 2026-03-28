@@ -18,7 +18,7 @@ public class GetMonthlySummaryQueryHandlerTests
 
     private const string UserId = "user-1";
     private const int Month = 3;
-    private const int Year = 2025;
+    private const int Year = 2026;
 
     public GetMonthlySummaryQueryHandlerTests()
     {

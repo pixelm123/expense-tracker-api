@@ -46,15 +46,9 @@ public class GetMonthlySummaryQueryHandler : IRequestHandler<GetMonthlySummaryQu
     {
         var userId = _currentUser.UserId;
 
-        var totalsTask = _expenses.GetMonthlyTotalsByCategoryAsync(userId, month, year, ct);
-        var budgetsTask = _budgets.GetByMonthYearAsync(userId, month, year, ct);
-        var categoriesTask = _categories.GetByUserIdAsync(userId, ct);
-
-        await Task.WhenAll(totalsTask, budgetsTask, categoriesTask);
-
-        var totalsByCategory = totalsTask.Result;
-        var budgets = budgetsTask.Result.ToDictionary(b => b.CategoryId);
-        var categories = categoriesTask.Result;
+        var totalsByCategory = await _expenses.GetMonthlyTotalsByCategoryAsync(userId, month, year, ct);
+        var budgets = (await _budgets.GetByMonthYearAsync(userId, month, year, ct)).ToDictionary(b => b.CategoryId);
+        var categories = await _categories.GetByUserIdAsync(userId, ct);
 
         var byCategory = categories
             .Where(c => totalsByCategory.ContainsKey(c.Id) || budgets.ContainsKey(c.Id))
